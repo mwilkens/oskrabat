@@ -66,7 +66,7 @@ class Sprite{
         void proj(CImg<unsigned char> * buff){
             // if it has an alpha channel print that
             if (image.spectrum() > 3)
-                buff->draw_image(_x,_y,image,image.get_channel(3),1,1);
+                buff->draw_image(_x,_y,0,0,image,image.get_channel(3),1,255);
             else
                 buff->draw_image(_x,_y,image,1);
         }
@@ -88,13 +88,13 @@ class Sprite{
             w = new_w; h = height;
         }
 
-        unsigned int get_x(){return _x;}
-        unsigned int get_y(){return _y;}
+        signed int get_x(){return _x;}
+        signed int get_y(){return _y;}
 
     protected:
         CImg<unsigned char> image;
-        unsigned int _x,_y;
-        unsigned int w, h;
+        signed int _x,_y;
+        signed int w, h;
 };
 
 class Character : public Sprite {
@@ -165,9 +165,12 @@ int main(int argc, char **argv) {
     CImgDisplay
         main_disp(Wi,Hi, "OSKRABAT (FLESH)",0);
 
-    CImg<unsigned char> buffer(Wi,Hi,1,3,0);
+    CImg<unsigned char> buffer(Wi,Hi,1,4,0);
     
     Sprite background("./res/background.png");
+    Sprite background2("./res/background2.png");
+   
+    background.set_xy(0,0); background2.set_xy(0,0);
 
     Character p1("./res/p1up.png", "./res/p1down.png",200); p1.set_xy(210,550);
     Character p2("./res/p2up.png", "./res/p2down.png",200); p2.set_xy(445,550);
@@ -185,6 +188,29 @@ int main(int argc, char **argv) {
             continue;
         }
 
+        unsigned int rnd = rand() % 100;
+
+        switch ( rnd % 8 ){
+            case 1:
+                if (background2.get_x() < 4)
+                    background2.shift(1,0);
+                break;
+            case 2:
+                if (background2.get_y() < 4)
+                    background2.shift(0,1);
+                break;
+            case 3:
+                if (background2.get_x() > -4)
+                    background2.shift(-1,0);
+                break;
+            case 4:
+                if (background2.get_y() > -4)
+                    background2.shift(0,-1);
+                break;
+            default:
+                break;
+        }
+
         // main event loop
         buffer.fill(0);
 
@@ -199,6 +225,7 @@ int main(int argc, char **argv) {
         //buffer.draw_text(0,25,"P2: %u,%u",white,12,1,24,p2.get_x(),p2.get_y());
         
         // Do projections
+        background2.proj(&buffer);
         background.proj(&buffer);
         p1.proj(&buffer); p2.proj(&buffer);
         meat1.proj(&buffer); meat2.proj(&buffer); meat3.proj(&buffer);
