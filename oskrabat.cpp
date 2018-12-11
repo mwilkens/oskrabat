@@ -104,14 +104,14 @@ class Character : public Sprite {
         
         Character(const char * const fup, const char * const fdown) :
             Sprite( fup ), squished (false) {
-            snprintf(_fup,20,fup);
-            snprintf(_fdown,20,fdown);
+            snprintf(_fup,20,"%s",fup);
+            snprintf(_fdown,20,"%s",fdown);
         }
 
         Character(const char * const fup, const char * const fdown, unsigned int height) :
             Sprite( fup ), squished (false) {
-            snprintf(_fup,20,fup);
-            snprintf(_fdown,20,fdown);
+            snprintf(_fup,20,"%s",fup);
+            snprintf(_fdown,20,"%s",fdown);
             max_h = height;
             orig_h = h;
             resize_h(max_h);
@@ -119,7 +119,6 @@ class Character : public Sprite {
 
         void squish () {
             if ( squished ) return;
-            unsigned int oldH = h;
             assign(_fdown);
             resize_h ((int) (1.0f * h * max_h/orig_h) );
             shift(0,max_h);
@@ -148,7 +147,7 @@ class Character : public Sprite {
 // -----
 int main(int argc, char **argv) {
     // The -h help dialogue
-    cimg_usage("Mandy's Video game!\n(by Mandy).");
+    cimg_usage("OSKRABAT!\n(by Mandy).");
     cimg_help("\n"
             "** Some Help ***********************\n"
             " 1) You'll love this game\n"
@@ -164,19 +163,18 @@ int main(int argc, char **argv) {
 
     // Main program window
     CImgDisplay
-        main_disp(Wi,Hi, "Mandy's Big Game",0);
+        main_disp(Wi,Hi, "OSKRABAT (FLESH)",0);
 
     CImg<unsigned char> buffer(Wi,Hi,1,3,0);
     
-    Character p1("./res/p1up.png", "./res/p1down.png",200); p1.set_xy(260,550);
-    Character p2("./res/p2up.png", "./res/p2down.png",200); p2.set_xy(460,550);
+    Sprite background("./res/background.png");
 
-    Sprite meat1("./res/meat.png"); meat1.resize_h(50); meat1.set_xy(400,75);
-    Sprite meat2("./res/meat.png"); meat2.resize_h(50); meat2.set_xy(400,275);
-    Sprite meat3("./res/meat.png"); meat3.resize_h(50); meat3.set_xy(400,475);
+    Character p1("./res/p1up.png", "./res/p1down.png",200); p1.set_xy(210,550);
+    Character p2("./res/p2up.png", "./res/p2down.png",200); p2.set_xy(445,550);
 
-    printf("P1 X:%d, Y:%d\n", p1.get_x(), p1.get_y());
-    printf("P2 X:%d, Y:%d\n", p2.get_x(), p2.get_y());
+    Sprite meat1("./res/meat.png"); meat1.resize_h(50); meat1.set_xy(360,75);
+    Sprite meat2("./res/meat.png"); meat2.resize_h(50); meat2.set_xy(360,275);
+    Sprite meat3("./res/meat.png"); meat3.resize_h(50); meat3.set_xy(360,475);
 
     // The main loop
     while (!main_disp.is_closed() && !main_disp.is_keyESC() && !main_disp.is_keyQ()){
@@ -190,27 +188,18 @@ int main(int argc, char **argv) {
         // main event loop
         buffer.fill(0);
 
-        if(main_disp.is_keyARROWLEFT()) p1.shift(-2,0);
-        if(main_disp.is_keyARROWRIGHT()) p1.shift(2,0);
-        if(main_disp.is_keyARROWUP()) p1.shift(0,-2);
-        if(main_disp.is_keyARROWDOWN()) p1.shift(0,2);
-
-        if(main_disp.is_keyJ()) p2.shift(-2,0);
-        if(main_disp.is_keyL()) p2.shift(2,0);
-        if(main_disp.is_keyI()) p2.shift(0,-2);
-        if(main_disp.is_keyK()) p2.shift(0,2);
-
-        if(main_disp.is_keyZ()) { p1.squish(); }
+        if(main_disp.is_keyX()) { p1.squish(); }
         else { p1.unsquish(); }
 
 
         if(main_disp.is_keyM()) { p2.squish(); }
         else { p2.unsquish(); }
 
-        buffer.draw_text(0,0,"P1: %u,%u",white,12,1,24,p1.get_x(),p1.get_y());
-        buffer.draw_text(0,25,"P2: %u,%u",white,12,1,24,p2.get_x(),p2.get_y());
+        //buffer.draw_text(0,0,"P1: %u,%u",white,12,1,24,p1.get_x(),p1.get_y());
+        //buffer.draw_text(0,25,"P2: %u,%u",white,12,1,24,p2.get_x(),p2.get_y());
         
         // Do projections
+        background.proj(&buffer);
         p1.proj(&buffer); p2.proj(&buffer);
         meat1.proj(&buffer); meat2.proj(&buffer); meat3.proj(&buffer);
 
