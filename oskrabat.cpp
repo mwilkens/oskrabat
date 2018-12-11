@@ -143,20 +143,79 @@ class Character : public Sprite {
         bool squished;
 };
 
+class Meat : public Sprite {
+    public:
+        Meat() {}
+        ~Meat() {}
+
+        Meat(const char * const filename) : Sprite(filename), status(0) {}
+
+    protected:
+        signed short int status;
+};
+
 class Bonewand : public Sprite {
     public:
         Bonewand() { }
         ~Bonewand() {/* do nothing*/}
         
-        Bonewand(const char * const filename, unsigned int height) :
-            Sprite( filename ) {
+        Bonewand(const char * const filename, unsigned int height, bool direction) :
+            Sprite( filename ),dir(direction) {
                 max_h = height;
                 orig_h = h;
+                idir = 0; stabt = 999; t = 0;
+                speed = 4;
                 resize_h(max_h);
         }
 
+        void set_speed(unsigned int spd){ speed = spd; }
+
+        void stab() {
+            //if ( !(stabt + 25 > t && stabt - 25 < t) ) {
+                slide = true;
+                //stabt = t;
+           // }
+        }
+
+        void update(){
+            if (slide){ // this is for if we're selected to slide
+                if ( get_x() < 360){
+                    if (get_x() > 219) idir = 1;
+                    if (idir == 1 && get_x() == 10) {
+                        idir = 0;
+                        slide = false;
+                        return;
+                    }
+                        shift( pow(-1,(int)idir)*15,0);
+
+                } else {
+                    if (get_x() < 381) idir = 1;
+                    if (idir == 1 && get_x() == 590) {
+                        idir = 0;
+                        slide = false;
+                        return;
+                    }
+                        shift(pow(-1,(int)!idir)*15,0);
+                }
+        
+            } else { // this is for normal up/down movement
+                t = t % 100;
+
+                // reset the stab time
+                //if ( !(stabt + 25 > t && stabt - 25 < t) ) stabt = 999;
+                
+                if ( get_y() > 500 || get_y() < 10) dir = !dir; 
+                
+                shift(0,pow(-1,(int)!dir)*speed); 
+                
+                t++;
+            }
+        }
+
     protected:
-        unsigned int max_h, orig_h;    
+        unsigned int max_h, orig_h;
+        unsigned int speed, t, stabt;
+        bool dir, idir, slide;
 };
 
 // Main
@@ -191,19 +250,22 @@ int main(int argc, char **argv) {
     Character p1("./res/p1up.png", "./res/p1down.png",200); p1.set_xy(210,550);
     Character p2("./res/p2up.png", "./res/p2down.png",200); p2.set_xy(445,550);
 
-    Sprite meat1("./res/meat.png"); meat1.resize_h(50); meat1.set_xy(360,75);
-    Sprite meat2("./res/meat.png"); meat2.resize_h(50); meat2.set_xy(360,275);
-    Sprite meat3("./res/meat.png"); meat3.resize_h(50); meat3.set_xy(360,475);
+    Meat meat1("./res/meat.png"); meat1.resize_h(50); meat1.set_xy(350,75);
+    Meat meat2("./res/meat.png"); meat2.resize_h(50); meat2.set_xy(350,275);
+    Meat meat3("./res/meat.png"); meat3.resize_h(50); meat3.set_xy(350,475);
 
-    Bonewand bw1("./res/bonewand.png",100); bw1.set_xy(10,10);
-    Bonewand bw2("./res/bonewand2.png",100); bw2.set_xy(590,10);
+    Bonewand bw1("./res/bonewand.png",100,1); bw1.set_xy(10,200);
+    Bonewand bw2("./res/bonewand2.png",100,0); bw2.set_xy(590,200);
+    
+    bw1.set_speed(10);
+    bw2.set_speed(10);
 
     // The main loop
     while (!main_disp.is_closed() && !main_disp.is_keyESC() && !main_disp.is_keyQ()){
     
         if(!(main_disp.mouse_x()>=0) && !(main_disp.mouse_y()>=0)){
             // if we're not in the screen wait and don't update screen
-            cimg::wait(1);
+            cimg::wait(500);
             continue;
         }
 
@@ -233,12 +295,14 @@ int main(int argc, char **argv) {
         // main event loop
         buffer.fill(0);
 
-        if(main_disp.is_keyX()) { p1.squish(); }
-        else { p1.unsquish(); }
+        if(main_disp.is_keyX()) { bw1.stab(); }
+        //else { p1.unsquish(); }
 
 
-        if(main_disp.is_keyM()) { p2.squish(); }
-        else { p2.unsquish(); }
+        if(main_disp.is_keyM()) { bw2.stab(); }
+        //else { p2.unsquish(); }
+
+        bw1.update(); bw2.update();
 
         //buffer.draw_text(0,0,"P1: %u,%u",white,12,1,24,p1.get_x(),p1.get_y());
         //buffer.draw_text(0,25,"P2: %u,%u",white,12,1,24,p2.get_x(),p2.get_y());
@@ -247,11 +311,11 @@ int main(int argc, char **argv) {
         background2.proj(&buffer);
         background.proj(&buffer);
         p1.proj(&buffer); p2.proj(&buffer);
-        meat1.proj(&buffer); meat2.proj(&buffer); meat3.proj(&buffer);
         bw1.proj(&buffer); bw2.proj(&buffer);
+        meat1.proj(&buffer); meat2.proj(&buffer); meat3.proj(&buffer);
 
         // update at 60fps
-        main_disp.display(buffer).wait(16);
+        main_disp.display(buffer).wait(1);
     }
 
     // End the game

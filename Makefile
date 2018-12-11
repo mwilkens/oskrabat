@@ -342,9 +342,11 @@ $(OPT_CFLAGS) \
 $(OPENMP_CFLAGS) \
 $(VT100_CFLAGS) \
 $(X11_CFLAGS) \
-$(XSHM_CFLAGS)" \
+$(XSHM_CFLAGS) \
+$(PNG_CFLAGS)" \
 "CONF_LIBS = \
 $(X11_LIBS) \
+$(PNG_LIBS) \
 $(XSHM_LIBS)" \
 "STRIP_EXE=true" \
 all
