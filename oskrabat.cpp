@@ -143,6 +143,22 @@ class Character : public Sprite {
         bool squished;
 };
 
+class Bonewand : public Sprite {
+    public:
+        Bonewand() { }
+        ~Bonewand() {/* do nothing*/}
+        
+        Bonewand(const char * const filename, unsigned int height) :
+            Sprite( filename ) {
+                max_h = height;
+                orig_h = h;
+                resize_h(max_h);
+        }
+
+    protected:
+        unsigned int max_h, orig_h;    
+};
+
 // Main
 // -----
 int main(int argc, char **argv) {
@@ -163,7 +179,7 @@ int main(int argc, char **argv) {
 
     // Main program window
     CImgDisplay
-        main_disp(Wi,Hi, "OSKRABAT (FLESH)",0);
+        main_disp(Wi,Hi, "(FLESH)",0);
 
     CImg<unsigned char> buffer(Wi,Hi,1,4,0);
     
@@ -179,6 +195,9 @@ int main(int argc, char **argv) {
     Sprite meat2("./res/meat.png"); meat2.resize_h(50); meat2.set_xy(360,275);
     Sprite meat3("./res/meat.png"); meat3.resize_h(50); meat3.set_xy(360,475);
 
+    Bonewand bw1("./res/bonewand.png",100); bw1.set_xy(10,10);
+    Bonewand bw2("./res/bonewand2.png",100); bw2.set_xy(590,10);
+
     // The main loop
     while (!main_disp.is_closed() && !main_disp.is_keyESC() && !main_disp.is_keyQ()){
     
@@ -192,19 +211,19 @@ int main(int argc, char **argv) {
 
         switch ( rnd % 8 ){
             case 1:
-                if (background2.get_x() < 4)
+                if (background2.get_x() < 6)
                     background2.shift(1,0);
                 break;
             case 2:
-                if (background2.get_y() < 4)
+                if (background2.get_y() < 6)
                     background2.shift(0,1);
                 break;
             case 3:
-                if (background2.get_x() > -4)
+                if (background2.get_x() > -6)
                     background2.shift(-1,0);
                 break;
             case 4:
-                if (background2.get_y() > -4)
+                if (background2.get_y() > -6)
                     background2.shift(0,-1);
                 break;
             default:
@@ -229,7 +248,7 @@ int main(int argc, char **argv) {
         background.proj(&buffer);
         p1.proj(&buffer); p2.proj(&buffer);
         meat1.proj(&buffer); meat2.proj(&buffer); meat3.proj(&buffer);
-
+        bw1.proj(&buffer); bw2.proj(&buffer);
 
         // update at 60fps
         main_disp.display(buffer).wait(16);
