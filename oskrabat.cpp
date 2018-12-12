@@ -163,7 +163,7 @@ class Bonewand : public Sprite {
             Sprite( filename ),dir(direction) {
                 max_h = height;
                 orig_h = h;
-                idir = 0; stabt = 999; t = 0;
+                idir = 0; t = 0;
                 speed = 4;
                 resize_h(max_h);
         }
@@ -171,11 +171,13 @@ class Bonewand : public Sprite {
         void set_speed(unsigned int spd){ speed = spd; }
 
         void stab() {
-            //if ( !(stabt + 25 > t && stabt - 25 < t) ) {
+            if ( t >= 50) {
                 slide = true;
-                //stabt = t;
-           // }
+                t = 0;
+            }
         }
+
+        unsigned int getT(){return t;}
 
         void update(){
             if (slide){ // this is for if we're selected to slide
@@ -199,22 +201,18 @@ class Bonewand : public Sprite {
                 }
         
             } else { // this is for normal up/down movement
-                t = t % 100;
-
-                // reset the stab time
-                //if ( !(stabt + 25 > t && stabt - 25 < t) ) stabt = 999;
-                
                 if ( get_y() > 500 || get_y() < 10) dir = !dir; 
                 
                 shift(0,pow(-1,(int)!dir)*speed); 
                 
-                t++;
+                if (t < 50)
+                    t+=speed;
             }
         }
 
     protected:
         unsigned int max_h, orig_h;
-        unsigned int speed, t, stabt;
+        unsigned int speed, t;
         bool dir, idir, slide;
 };
 
@@ -304,7 +302,7 @@ int main(int argc, char **argv) {
 
         bw1.update(); bw2.update();
 
-        //buffer.draw_text(0,0,"P1: %u,%u",white,12,1,24,p1.get_x(),p1.get_y());
+        //buffer.draw_text(0,0,"T: %u,%u",white,12,1,24,bw1.getT(),bw2.getT());
         //buffer.draw_text(0,25,"P2: %u,%u",white,12,1,24,p2.get_x(),p2.get_y());
         
         // Do projections
