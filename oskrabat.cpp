@@ -91,6 +91,31 @@ class Sprite{
         signed int get_x(){return _x;}
         signed int get_y(){return _y;}
 
+        void randomshift(unsigned int amt, signed int lmt){
+             unsigned int rnd = rand() % 100;
+
+             switch ( rnd % 8 ){
+                 case 1:
+                     if (get_x() < lmt)
+                         shift(amt,0);
+                     break;
+                 case 2:
+                     if (get_y() < lmt)
+                         shift(0,amt);
+                     break;
+                 case 3:
+                     if (get_x() > -lmt)
+                         shift(-amt,0);
+                     break;
+                 case 4:
+                     if (get_y() > -lmt)
+                         shift(0,-amt);
+                     break;
+                 default:
+                     break;
+             }
+        }
+
     protected:
         CImg<unsigned char> image;
         signed int _x,_y;
@@ -99,9 +124,6 @@ class Sprite{
 
 class Character : public Sprite {
     public:
-        Character() { squished = false; }
-        ~Character() {/* do nothing*/}
-        
         Character(const char * const fup, const char * const fdown) :
             Sprite( fup ), squished (false) {
             snprintf(_fup,20,"%s",fup);
@@ -116,6 +138,8 @@ class Character : public Sprite {
             orig_h = h;
             resize_h(max_h);
         }
+
+        ~Character() {/* do nothing*/}
 
         void squish () {
             if ( squished ) return;
@@ -263,36 +287,16 @@ int main(int argc, char **argv) {
     
         if(!(main_disp.mouse_x()>=0) && !(main_disp.mouse_y()>=0)){
             // if we're not in the screen wait and don't update screen
-            cimg::wait(500);
+            cimg::wait(1);
             continue;
-        }
-
-        unsigned int rnd = rand() % 100;
-
-        switch ( rnd % 8 ){
-            case 1:
-                if (background2.get_x() < 6)
-                    background2.shift(1,0);
-                break;
-            case 2:
-                if (background2.get_y() < 6)
-                    background2.shift(0,1);
-                break;
-            case 3:
-                if (background2.get_x() > -6)
-                    background2.shift(-1,0);
-                break;
-            case 4:
-                if (background2.get_y() > -6)
-                    background2.shift(0,-1);
-                break;
-            default:
-                break;
         }
 
         // main event loop
         buffer.fill(0);
 
+        // shift the eye guy around randomly
+        background2.randomshift(2,6);
+        
         if(main_disp.is_keyX()) { bw1.stab(); }
         //else { p1.unsquish(); }
 
@@ -300,6 +304,7 @@ int main(int argc, char **argv) {
         if(main_disp.is_keyM()) { bw2.stab(); }
         //else { p2.unsquish(); }
 
+        // update the movement of the bone wands
         bw1.update(); bw2.update();
 
         //buffer.draw_text(0,0,"T: %u,%u",white,12,1,24,bw1.getT(),bw2.getT());
