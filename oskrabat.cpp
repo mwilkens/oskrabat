@@ -44,6 +44,8 @@ using namespace cimg_library;
 
 #include <stdio.h>
 
+const unsigned char pink[] {255,0,255};
+
 // Class Sprite
 class Sprite{
     public:
@@ -53,22 +55,22 @@ class Sprite{
         // overload for loading up an image in the constructor
         Sprite(const char * const filename) { 
             image.assign(filename);
+            mask = image.get_threshold(1).channel(1).normalize(0,255);
             w = image.width(); h = image.height();
         }
 
         // just a wrapper for the assign CImg function
         void assign(const char * const filename) {
-            image.assign(filename); 
+            image.assign(filename);
+            mask = image.get_threshold(1).channel(1).normalize(0,255);
             w = image.width(); h = image.height();
         } 
 
         // Function for Projecting
         void proj(CImg<unsigned char> * buff){
-            // if it has an alpha channel print that
-            if (image.spectrum() > 3)
-                buff->draw_image(_x,_y,0,0,image,image.get_channel(3),1,255);
-            else
-                buff->draw_image(_x,_y,image,1);
+            buff->draw_image(_x,_y,mask,1);
+            // this function is SO slow
+            //buff->draw_image(_x,_y,0,0,image,mask,1,255);
         }
 
         // setting function for x,y
@@ -85,6 +87,7 @@ class Sprite{
             float r = 1.0f*w/h;
             unsigned int new_w = 1.0f*height*r;
             image.resize(new_w,height);
+            mask.resize(new_w,height);
             w = new_w; h = height;
         }
 
@@ -92,7 +95,7 @@ class Sprite{
         signed int get_y(){return _y;}
 
     protected:
-        CImg<unsigned char> image;
+        CImg<unsigned char> image, mask;
         signed int _x,_y;
         signed int w, h;
 };
@@ -233,8 +236,6 @@ int main(int argc, char **argv) {
 
     // The dimentions of the screen
     const unsigned int Wi = 800, Hi = 800;
-   
-    const unsigned char white[] {255,255,255};
 
     // Main program window
     CImgDisplay
@@ -242,23 +243,25 @@ int main(int argc, char **argv) {
 
     CImg<unsigned char> buffer(Wi,Hi,1,4,0);
     
-    Sprite background("./res/background.png");
-    Sprite background2("./res/background2.png");
+    Sprite background("./res/background.jpg");
+    Sprite background2("./res/background2.jpg");
    
     background.set_xy(0,0); background2.set_xy(0,0);
 
-    Character p1("./res/p1up.png", "./res/p1down.png",200); p1.set_xy(210,550);
-    Character p2("./res/p2up.png", "./res/p2down.png",200); p2.set_xy(445,550);
+    Character p1("./res/p1up.jpg", "./res/p1down.jpg",200); p1.set_xy(210,550);
+    Character p2("./res/p2up.jpg", "./res/p2down.jpg",200); p2.set_xy(445,550);
 
-    Meat meat1("./res/meat.png"); meat1.resize_h(50); meat1.set_xy(350,75);
-    Meat meat2("./res/meat.png"); meat2.resize_h(50); meat2.set_xy(350,275);
-    Meat meat3("./res/meat.png"); meat3.resize_h(50); meat3.set_xy(350,475);
+    Meat meat1("./res/meat.jpg"); meat1.resize_h(50); meat1.set_xy(350,75);
+    Meat meat2("./res/meat.jpg"); meat2.resize_h(50); meat2.set_xy(350,275);
+    Meat meat3("./res/meat.jpg"); meat3.resize_h(50); meat3.set_xy(350,475);
 
-    Bonewand bw1("./res/bonewand.png",100,1); bw1.set_xy(10,200);
-    Bonewand bw2("./res/bonewand2.png",100,0); bw2.set_xy(590,200);
+    Bonewand bw1("./res/bonewand.jpg",100,1); bw1.set_xy(10,200);
+    Bonewand bw2("./res/bonewand2.jpg",100,0); bw2.set_xy(590,200);
     
     bw1.set_speed(10);
     bw2.set_speed(10);
+
+    unsigned int fnum = 0;
 
     // The main loop
     while (!main_disp.is_closed() && !main_disp.is_keyESC() && !main_disp.is_keyQ()){
@@ -302,6 +305,12 @@ int main(int argc, char **argv) {
         if(main_disp.is_keyM()) { bw2.stab(); }
         //else { p2.unsquish(); }
 
+        if(main_disp.is_keyARROWLEFT()) { p1.squish(); }
+        else { p1.unsquish(); }
+
+        if(main_disp.is_keyARROWRIGHT()) { p2.squish(); }
+        else { p2.unsquish(); }
+
         bw1.update(); bw2.update();
 
         //buffer.draw_text(0,0,"P1: %u,%u",white,12,1,24,p1.get_x(),p1.get_y());
@@ -314,8 +323,14 @@ int main(int argc, char **argv) {
         bw1.proj(&buffer); bw2.proj(&buffer);
         meat1.proj(&buffer); meat2.proj(&buffer); meat3.proj(&buffer);
 
+        // uncomment this block if you wanna make an animated gif
+        //char c[20];
+        //sprintf(c, "./gif/gif%04d.jpeg", fnum);
+        //fnum++;
+        //buffer.save(c);
+
         // update at 60fps
-        main_disp.display(buffer).wait(1);
+        main_disp.display(buffer).wait(16);
     }
 
     // End the game
