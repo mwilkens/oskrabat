@@ -83,15 +83,17 @@ int main(int argc, char **argv) {
     Character p1("./res/p1up.png", "./res/p1down.png",200); p1.set_xy(210,550);
     Character p2("./res/p2up.png", "./res/p2down.png",200); p2.set_xy(445,550);
 
-    Meat meat1("./res/meat.png"); meat1.resize_h(50); meat1.set_xy(350,75);
+    Meat meat1("./res/meat.png"); meat1.resize_h(50); meat1.set_xy(350,100);
     Meat meat2("./res/meat.png"); meat2.resize_h(50); meat2.set_xy(350,275);
-    Meat meat3("./res/meat.png"); meat3.resize_h(50); meat3.set_xy(350,475);
+    Meat meat3("./res/meat.png"); meat3.resize_h(50); meat3.set_xy(350,450);
 
     Bonewand bw1("./res/bonewand.png",100,1); bw1.set_xy(10,200);
     Bonewand bw2("./res/bonewand2.png",100,0); bw2.set_xy(590,200);
     
     bw1.set_speed(5);
     bw2.set_speed(5);
+
+    unsigned int winner = WINNER_NONE;
 
     // Configuring events
 
@@ -116,23 +118,34 @@ int main(int argc, char **argv) {
 
         switch(event.type){
             case ALLEGRO_EVENT_TIMER:
+
+                // Key events
                 if(key[ALLEGRO_KEY_ESCAPE] || key[ALLEGRO_KEY_Q]) running = false; // quit the game
-                if(key[ALLEGRO_KEY_X]) bw1.stab();
-                if(key[ALLEGRO_KEY_M]) bw2.stab();
+                if(key[ALLEGRO_KEY_X]) bw1.stab(&meat1,&meat2,&meat3);
+                if(key[ALLEGRO_KEY_M]) bw2.stab(&meat1,&meat2,&meat3);
                 if(key[ALLEGRO_KEY_LEFT]) p1.get_squish() ? p1.unsquish() : p1.squish();
                 if(key[ALLEGRO_KEY_RIGHT]) p2.get_squish() ? p2.unsquish() : p2.squish();
+
+                if (rand() % 1200 == 0) {
+                    unsigned int spd = 5 + rand()%10;
+                    bw1.set_speed(spd);
+                    bw2.set_speed(spd);
+                }
 
                 for( int i = 0; i < ALLEGRO_KEY_MAX; i++) key[i] &= 1;
 
                 redraw = true;
                 break;
+
             // dont worry about what this means lol
             case ALLEGRO_EVENT_KEY_DOWN:
                 key[event.keyboard.keycode] = 1|2;
                 break;
+
             case ALLEGRO_EVENT_KEY_UP:
                 key[event.keyboard.keycode] &= 2;
                 break;
+
             case ALLEGRO_EVENT_DISPLAY_CLOSE:
                 running = false;
                 break;
@@ -146,7 +159,21 @@ int main(int argc, char **argv) {
             background2.randomshift(1,6);
             
             // update the movement of the bone wands
-            bw1.update(); bw2.update();
+            if      (meat1.get_falling()) meat1.fall(&winner);
+            else if (meat2.get_falling()) meat2.fall(&winner);
+            else if (meat3.get_falling()) meat3.fall(&winner);
+            else {bw1.update(); bw2.update();}
+
+            switch(winner){
+                case WINNER_P1:
+                    p2.squish();
+                    break;
+                case WINNER_P2:
+                    p1.squish();
+                    break;
+                case WINNER_NONE:
+                    break;
+            }
 
             // Do projections
             background2.proj();

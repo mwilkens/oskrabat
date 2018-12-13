@@ -8,14 +8,21 @@ Bonewand::Bonewand(const char * const filename, unsigned int height, bool direct
     Sprite( filename ),dir(direction) {
         idir = 0; t = 0;
         speed = 4;
+        slide = false;
         resize_h(height);
 }
 
 void Bonewand::set_speed(unsigned int spd){ speed = spd; }
 
-void Bonewand::stab() {
+void Bonewand::stab(Meat * m1, Meat * m2, Meat * m3) {
     if ( t >= 50) {
         slide = true;
+
+        if (m1->inRange(_y)) target = m1;
+        else if (m2->inRange(_y)) target = m2;
+        else if (m3->inRange(_y)) target = m3;
+        else target = NULL;
+
         t = 0;
     }
 }
@@ -25,7 +32,7 @@ unsigned int Bonewand::getT(){return t;}
 void Bonewand::update(){
     if (slide){ // this is for if we're selected to slide
         if ( get_x() < 360){
-            if (get_x() > 219) idir = 1;
+            if (get_x() > 219) { idir = 1; hitTarget(1);}
             if (idir == 1 && get_x() == 10) {
                 idir = 0;
                 slide = false;
@@ -34,7 +41,7 @@ void Bonewand::update(){
                 shift( pow(-1,(int)idir)*15,0);
 
         } else {
-            if (get_x() < 381) idir = 1;
+            if (get_x() < 381) {idir = 1; hitTarget(-1);}
             if (idir == 1 && get_x() == 590) {
                 idir = 0;
                 slide = false;
@@ -50,5 +57,11 @@ void Bonewand::update(){
         
         if (t < 50)
             t+=speed;
+    }
+}
+
+void Bonewand::hitTarget(short dir){
+    if (target != NULL){
+        target->hit(dir);
     }
 }

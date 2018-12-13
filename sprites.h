@@ -3,10 +3,14 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
 
+#define WINNER_NONE 0 
+#define WINNER_P1   1
+#define WINNER_P2   2
+
 // Class Sprite
 class Sprite{
     public:
-        Sprite() : image(NULL) {}
+        Sprite() : image(NULL) { }
         ~Sprite() { al_destroy_bitmap(image); }
 
         // overload for loading up an image in the constructor
@@ -14,7 +18,7 @@ class Sprite{
 
         // just a wrapper for the assign CImg function
         void assign(const char * const filename);
-        
+
         // Function for Projecting
         void proj();
 
@@ -48,6 +52,8 @@ class Character : public Sprite {
         void squish ();
         void unsquish ();
 
+        unsigned int check_winner();
+
         bool get_squish();
 
     private:
@@ -61,10 +67,19 @@ class Meat : public Sprite {
         Meat() {}
         ~Meat() {}
 
-        Meat(const char * const filename) : Sprite(filename), status(0) {}
+        Meat(const char * const filename) : Sprite(filename), status(0), falling(false) {}
+
+        bool inRange(unsigned int y);
+
+        void hit(signed short s);
+
+        bool get_falling() {return falling;}
+
+        void fall(unsigned int * winner);
 
     protected:
         signed short int status;
+        bool falling;
 };
 
 class Bonewand : public Sprite {
@@ -76,13 +91,16 @@ class Bonewand : public Sprite {
 
         void set_speed(unsigned int spd);
 
-        void stab();
+        void stab(Meat * m1, Meat * m2, Meat * m3);
 
         unsigned int getT();
 
         void update();
 
+        void hitTarget(short dir);
+
     protected:
         unsigned int speed, t;
         bool dir, idir, slide;
+        Meat * target;
 };
