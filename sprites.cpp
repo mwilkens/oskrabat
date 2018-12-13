@@ -1,7 +1,7 @@
 #include "sprites.h"
 
 // overload for loading up an image in the constructor
-Sprite::Sprite(const char * const filename) { 
+Sprite::Sprite(const char * const filename) : sx(0), sy(0) { 
     image = al_load_bitmap(filename);
     w = al_get_bitmap_width(image); h = al_get_bitmap_height(image);
     nw = w; nh = h;
@@ -16,7 +16,7 @@ void Sprite::assign(const char * const filename) {
 // Function for Projecting
 void Sprite::proj(){
     al_draw_scaled_bitmap(image, 0, 0, al_get_bitmap_width(image) , al_get_bitmap_height(image) ,
-                                 _x, _y, nw, nh, 0);
+                                 _x+sx, _y+sy, nw, nh, 0);
 }
 
 // setting function for x,y
@@ -43,20 +43,20 @@ void Sprite::randomshift(unsigned int amt, signed int lmt){
 
         switch ( rnd % 8 ){
             case 1:
-                if (get_x() < lmt)
-                    shift(amt,0);
+                if ( sx < lmt)
+                    sx += amt;
                 break;
             case 2:
-                if (get_y() < lmt)
-                    shift(0,amt);
+                if ( sy < lmt)
+                    sy += amt;
                 break;
             case 3:
-                if (get_x() > -lmt)
-                    shift(-amt,0);
+                if ( sx > -lmt)
+                    sx -= amt;
                 break;
             case 4:
-                if (get_y() > -lmt)
-                    shift(0,-amt);
+                if ( sy > -lmt)
+                    sy -= amt;
                 break;
             default:
                 break;

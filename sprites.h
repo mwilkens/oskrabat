@@ -37,7 +37,7 @@ class Sprite{
 
     protected:
         ALLEGRO_BITMAP *image;
-        signed int _x,_y;
+        signed int _x,_y, sx,sy;
         signed int w, h, nw, nh;
 };
 

@@ -14,6 +14,6 @@ void Meat::hit(signed short s){
 }
 
 void Meat::fall(unsigned int * winner){
-    if (_y < 500) shift(0,2);
+    if (_y < 550) shift(0,4);
     else *winner = (status == 3) ? WINNER_P1 : WINNER_P2;
 }
