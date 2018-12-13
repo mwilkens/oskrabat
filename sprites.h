@@ -75,6 +75,8 @@ class Meat : public Sprite {
 
         bool get_falling() {return falling;}
 
+        void resetStatus(){status = 0; falling = false;}
+
         void fall(unsigned int * winner);
 
     protected:

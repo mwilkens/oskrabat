@@ -18,7 +18,7 @@ void Bonewand::stab(Meat * m1, Meat * m2, Meat * m3) {
     if ( t >= 50) {
         slide = true;
 
-        if (m1->inRange(_y)) target = m1;
+        if      (m1->inRange(_y)) target = m1;
         else if (m2->inRange(_y)) target = m2;
         else if (m3->inRange(_y)) target = m3;
         else target = NULL;

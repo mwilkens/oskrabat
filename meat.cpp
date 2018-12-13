@@ -6,7 +6,6 @@ bool Meat::inRange(unsigned int y){
 }
 
 void Meat::hit(signed short s){
-    printf("hit!!! %d -> %d\n", _y, s);
     status += s;
     if (status == 3 || status == -3) falling = true;
     if (status > 3 || status < -3) return;

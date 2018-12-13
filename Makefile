@@ -1,7 +1,7 @@
 DEPS = sprites.h
 OBJ = character.o meat.o bonewand.o sprites.o oskrabat.o
 
-ALLEGRO_FLAGS = $(shell pkg-config allegro-5 allegro_font-5 allegro_image-5 allegro_primitives-5 --libs --cflags)
+ALLEGRO_FLAGS = $(shell pkg-config allegro-5 allegro_font-5 allegro_image-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5 --libs --cflags)
 
 ifeq ($(shell echo $(notdir $(CXX)) | head -c3),g++)
 IS_GCC = 1
