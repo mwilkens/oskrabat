@@ -21,14 +21,14 @@ Character::~Character() {/* do nothing*/}
 void Character::squish () {
     if ( squished ) return;
     assign(_fdown);
-    resize_h ((int) (1.0f * h * max_h/orig_h) );
+    resize_h ( (int) (1.0f * h * max_h/orig_h) );
     shift(0,max_h);
-    shift(0,-h);
+    shift(0,-nh);
     squished = true;
 }
 void Character::unsquish () {
     if( !squished ) return;
-    unsigned int oldH = h;
+    unsigned int oldH = nh;
     assign(_fup);
     resize_h(max_h);
     shift(0,-max_h);

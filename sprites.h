@@ -14,7 +14,7 @@ class Sprite{
 
         // just a wrapper for the assign CImg function
         void assign(const char * const filename);
-
+        
         // Function for Projecting
         void proj();
 

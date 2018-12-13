@@ -90,8 +90,8 @@ int main(int argc, char **argv) {
     Bonewand bw1("./res/bonewand.png",100,1); bw1.set_xy(10,200);
     Bonewand bw2("./res/bonewand2.png",100,0); bw2.set_xy(590,200);
     
-    bw1.set_speed(10);
-    bw2.set_speed(10);
+    bw1.set_speed(5);
+    bw2.set_speed(5);
 
     // Configuring events
 
@@ -119,6 +119,8 @@ int main(int argc, char **argv) {
                 if(key[ALLEGRO_KEY_ESCAPE] || key[ALLEGRO_KEY_Q]) running = false; // quit the game
                 if(key[ALLEGRO_KEY_X]) bw1.stab();
                 if(key[ALLEGRO_KEY_M]) bw2.stab();
+                if(key[ALLEGRO_KEY_LEFT]) p1.get_squish() ? p1.unsquish() : p1.squish();
+                if(key[ALLEGRO_KEY_RIGHT]) p2.get_squish() ? p2.unsquish() : p2.squish();
 
                 for( int i = 0; i < ALLEGRO_KEY_MAX; i++) key[i] &= 1;
 
