@@ -97,6 +97,8 @@ class Bonewand : public Sprite {
 
         unsigned int getT();
 
+        void reset() {slide = false; idir = false;}
+
         void update();
 
         void hitTarget(short dir);

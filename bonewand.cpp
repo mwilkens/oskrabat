@@ -39,7 +39,7 @@ void Bonewand::update(){
                 slide = false;
                 return;
             }
-                shift( pow(-1,(int)idir)*15,0);
+                shift( pow(-1,(int)idir)*speed,0);
 
         } else {
             if (get_x() < 391) {idir = 1; hitTarget(-1);}
@@ -49,7 +49,7 @@ void Bonewand::update(){
                 slide = false;
                 return;
             }
-                shift(pow(-1,(int)!idir)*15,0);
+                shift(pow(-1,(int)!idir)*speed,0);
         }
 
     } else { // this is for normal up/down movement

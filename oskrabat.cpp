@@ -87,20 +87,20 @@ int main(int argc, char **argv) {
     // -----------------------------
     // Loading and defining sprites
     // -----------------------------
-    Sprite background("./res/background.png");
-    Sprite background2("./res/background2.png");
-    Sprite border("./res/border.png");
-    Sprite title_text("./res/title.png");
+    Sprite background("res/background.png");
+    Sprite background2("res/background2.png");
+    Sprite border("res/border.png");
+    Sprite title_text("res/title.png");
 
-    Character p1("./res/p1up.png", "./res/p1down.png",200); 
-    Character p2("./res/p2up.png", "./res/p2down.png",200); 
+    Character p1("res/p1up.png", "res/p1down.png",200); 
+    Character p2("res/p2up.png", "res/p2down.png",200); 
 
-    Meat meat1("./res/meat.png"); meat1.resize_h(50); 
-    Meat meat2("./res/meat.png"); meat2.resize_h(50); 
-    Meat meat3("./res/meat.png"); meat3.resize_h(50); 
+    Meat meat1("res/meat.png"); meat1.resize_h(50); 
+    Meat meat2("res/meat.png"); meat2.resize_h(50); 
+    Meat meat3("res/meat.png"); meat3.resize_h(50); 
 
-    Bonewand bw1("./res/bonewand.png",80,1);
-    Bonewand bw2("./res/bonewand2.png",80,0); 
+    Bonewand bw1("res/bonewand.png",80,1);
+    Bonewand bw2("res/bonewand2.png",80,0); 
     
     unsigned int winner = WINNER_NONE;
 
@@ -120,11 +120,11 @@ int main(int argc, char **argv) {
     al_register_event_source(queue, al_get_timer_event_source(timer));
 
     // play our audio file
-    music = al_load_sample("./res/music.ogg");
-    bone  = al_load_sample("./res/hit.ogg");
-    win_sound = al_load_sample("./res/final.ogg");
+    music = al_load_sample("res/music.ogg");
+    bone  = al_load_sample("res/hit.ogg");
+    win_sound = al_load_sample("res/final.ogg");
     ALLEGRO_SAMPLE_ID * currSample = NULL;
-    al_play_sample(music, 0.8, 0.0,0.8,ALLEGRO_PLAYMODE_LOOP,NULL);
+    al_play_sample(music, 0.5, 0.0,1.0,ALLEGRO_PLAYMODE_LOOP,NULL);
 
     // ---------------------
     // The main loop
@@ -142,10 +142,10 @@ int main(int argc, char **argv) {
         meat1.set_xy(360,100); meat1.resetStatus();
         meat2.set_xy(360,275); meat2.resetStatus();
         meat3.set_xy(360,450); meat3.resetStatus();
-        bw1.set_xy(60,200);
-        bw2.set_xy(580,200);
-        bw1.set_speed(15);
-        bw2.set_speed(15);
+        bw1.set_xy(60,200); bw1.reset();
+        bw2.set_xy(580,200); bw2.reset();
+        bw1.set_speed(18);
+        bw2.set_speed(18);
         title = true; running = true; playing = true; redraw = true;
         winner = WINNER_NONE;
 
@@ -168,13 +168,13 @@ int main(int argc, char **argv) {
                         if(key[ALLEGRO_KEY_X] & KEY_RELEASED == KEY_RELEASED) {
                             bw1.stab(&meat1,&meat2,&meat3);
                             if (currSample) {al_stop_sample(currSample); printf("is this happening?\n");} 
-                            else al_play_sample(bone, 2.0, -0.5,1.0,ALLEGRO_PLAYMODE_ONCE, currSample);
+                            else al_play_sample(bone, 2.0, -0.8,1.0,ALLEGRO_PLAYMODE_ONCE, currSample);
                         }
 
                         if(key[ALLEGRO_KEY_M] & KEY_RELEASED == KEY_RELEASED) {
                             bw2.stab(&meat1,&meat2,&meat3);
                             if (currSample) al_stop_sample(currSample);
-                            else al_play_sample(bone, 2.0, 0.5,1.0,ALLEGRO_PLAYMODE_ONCE, currSample);
+                            else al_play_sample(bone, 2.0, 0.8,1.0,ALLEGRO_PLAYMODE_ONCE, currSample);
                         }
 
                         if(key[ALLEGRO_KEY_LEFT]) p1.get_squish() ? p1.unsquish() : p1.squish();
@@ -183,8 +183,8 @@ int main(int argc, char **argv) {
                         if((key[ALLEGRO_KEY_SPACE] & KEY_RELEASED == KEY_RELEASED) && winner != WINNER_NONE) { playing = false; } 
                     }
 
-                    if (rand() % 600 == 0) {
-                        unsigned int spd = 10 + rand()%10;
+                    if (rand() % 150 == 0) {
+                        unsigned int spd = 15 + 2*(rand()%10);
                         bw1.set_speed(spd);
                         bw2.set_speed(spd);
                     }
@@ -238,11 +238,11 @@ int main(int argc, char **argv) {
                     switch(winner){
                         case WINNER_P1:
                             p2.squish();
-                            al_play_sample(win_sound, 2.0, 0.0,0.5,ALLEGRO_PLAYMODE_ONCE, NULL);
+                            al_play_sample(win_sound, 1.0, 0.0,0.5,ALLEGRO_PLAYMODE_ONCE, NULL);
                             break;
                         case WINNER_P2:
                             p1.squish();
-                            al_play_sample(win_sound, 2.0, 0.0,0.5,ALLEGRO_PLAYMODE_ONCE, NULL);
+                            al_play_sample(win_sound, 1.0, 0.0,0.5,ALLEGRO_PLAYMODE_ONCE, NULL);
                             break;
                         case WINNER_NONE:
                             break;
