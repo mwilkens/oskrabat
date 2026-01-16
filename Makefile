@@ -3,14 +3,11 @@ OBJ = character.o meat.o bonewand.o sprites.o oskrabat.o
 
 ALLEGRO_FLAGS = $(shell pkg-config allegro-5 allegro_font-5 allegro_image-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5 --libs --cflags)
 
-ifeq ($(shell echo $(notdir $(CXX)) | head -c3),g++)
+ifeq ($(shell echo $(notdir $(CXX)) | head -c3),gcc)
 IS_GCC = 1
 endif
-ifeq ($(shell echo $(notdir $(CXX)) | head -c7),clang++)
+ifeq ($(shell echo $(notdir $(CXX)) | head -c7),clang)
 IS_CLANG = 1
-endif
-ifeq ($(shell echo $(notdir $(CXX)) | head -c4),icpc)
-IS_ICPC = 1
 endif
 
 CXXVER = $(CXX)
@@ -34,9 +31,9 @@ endif
 
 # Flags to enable strict code standards
 ifeq ($(notdir $(CXX)),icpc)
-ANSI_CFLAGS = -std=c++11
+ANSI_CFLAGS = -std=c11
 else
-ANSI_CFLAGS = -std=c++11 -pedantic
+ANSI_CFLAGS = -std=c11 -pedantic
 endif
 
 # Flags to enable code debugging.
