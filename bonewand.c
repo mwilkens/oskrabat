@@ -1,69 +1,100 @@
 #include "sprites.h"
 #include <math.h>
 
-Bonewand::Bonewand() { }
-Bonewand::~Bonewand() {/* do nothing*/}
-
-Bonewand::Bonewand(const char * const filename, unsigned int height, bool direction) :
-    Sprite( filename ),dir(direction) {
-        idir = 0; t = 0;
-        speed = 4;
-        slide = false;
-        resize_h(height);
+void BoneInit(Bonewand * b, Texture2D * t, uint16_t height, bool direction)
+{
+    SpriteInit( &(b->sprite), t );
+    b->dir = direction;
+    b->idir = 0;
+    b->t = 0;
+    b->speed = 4;
+    b->slide = false;
+    b->target = NULL;
+    SpriteResizeH( &(b->sprite), height);
 }
 
-void Bonewand::set_speed(unsigned int spd){ speed = spd; }
+void BoneReset(Bonewand * b)
+{
+    b->slide = false; b->idir = false;
+}
 
-void Bonewand::stab(Meat * m1, Meat * m2, Meat * m3) {
-    if ( t >= 50) {
-        slide = true;
+void BoneSetSpeed(Bonewand * b, uint16_t spd)
+{
+    b->speed = spd;
+}
 
-        if      (m1->inRange(_y)) target = m1;
-        else if (m2->inRange(_y)) target = m2;
-        else if (m3->inRange(_y)) target = m3;
-        else target = NULL;
+void BoneStab(Bonewand * b, Meat * m1, Meat * m2, Meat * m3)
+{
+    if ( b->t >= 50) {
+        b->slide = true;
 
-        t = 0;
+        if      (MeatInRange(m1,b->sprite._y)) b->target = m1;
+        else if (MeatInRange(m2,b->sprite._y)) b->target = m2;
+        else if (MeatInRange(m3,b->sprite._y)) b->target = m3;
+        else b->target = NULL;
+
+        b->t = 0;
     }
 }
 
-unsigned int Bonewand::getT(){return t;}
-
-void Bonewand::update(){
-    if (slide){ // this is for if we're selected to slide
-        if ( get_x() < 360){
-            if (get_x() > 229) { idir = 1; hitTarget(1);}
-            if (idir == 1 && get_x() <= 50) {
-                _x = 50;
-                idir = 0;
-                slide = false;
+void BoneUpdate(Bonewand * b)
+{
+    if (b->slide){ // this is for if we're selected to slide
+        if ( b->sprite._x < 360)
+        {
+            if ( b->sprite._x > 229)
+            {
+                b->idir = 1;
+                BoneHitTarget(b, 1);
+            }
+            if (b->idir == 1 && b->sprite._x <= 50)
+            {
+                b->sprite._x = 50;
+                b->idir = 0;
+                b->slide = false;
                 return;
             }
-                shift( pow(-1,(int)idir)*speed,0);
+            SpriteShift( &(b->sprite), pow(-1,(int)b->idir)*b->speed,0);
 
-        } else {
-            if (get_x() < 391) {idir = 1; hitTarget(-1);}
-            if (idir == 1 && get_x() >= 580) {
-                _x = 580;
-                idir = 0;
-                slide = false;
+        } else
+        {
+            if (b->sprite._x < 391)
+            {
+                b->idir = 1;
+                BoneHitTarget(b,-1);
+            }
+            
+            if (b->idir == 1 && b->sprite._x >= 580)
+            {
+                b->sprite._x = 580;
+                b->idir = 0;
+                b->slide = false;
                 return;
             }
-                shift(pow(-1,(int)!idir)*speed,0);
+            
+            SpriteShift( &(b->sprite), pow(-1, (int) !(b->idir)) * b->speed, 0);
         }
 
-    } else { // this is for normal up/down movement
-        if ( get_y() > 500 || get_y() < 30) dir = !dir; 
+    }
+    else
+    { // this is for normal up/down movement
+        if ( b->sprite._y > 500 || b->sprite._y < 30)
+        {
+            b->dir = !b->dir;
+        }
         
-        shift(0,pow(-1,(int)!dir)*speed); 
+        SpriteShift( &(b->sprite), 0, pow(-1, (int)!(b->dir) ) * b->speed); 
         
-        if (t < 50)
-            t+=speed;
+        if (b->t < 50)
+        {
+            b->t += b->speed;
+        }
     }
 }
 
-void Bonewand::hitTarget(short dir){
-    if (target != NULL){
-        target->hit(dir);
+void BoneHitTarget(Bonewand * b, int8_t dir)
+{
+    if (b->target != NULL){
+        MeatHit(b->target, dir);
     }
 }

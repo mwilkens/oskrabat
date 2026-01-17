@@ -1,39 +1,39 @@
 #include "sprites.h"
-#include <stdio.h>
 
-Character::Character(const char * const fup, const char * const fdown) :
-    Sprite( fup ), squished (false) {
-    snprintf(_fup,20,"%s",fup);
-    snprintf(_fdown,20,"%s",fdown);
+void CharInit(Character * c, Texture2D * fup, Texture2D * fdown, uint16_t height)
+{
+    c->_fup = fup;
+    c->_fdown = fdown;
+    SpriteInit( &(c->sprite), fup );
+    c->squished = false;
+    c->max_h = height;
+    c->orig_h = c->sprite.h;
+    SpriteResizeH( &(c->sprite), c->max_h);
 }
 
-Character::Character(const char * const fup, const char * const fdown, unsigned int height) :
-    Sprite( fup ), squished (false) {
-    snprintf(_fup,20,"%s",fup);
-    snprintf(_fdown,20,"%s",fdown);
-    max_h = height;
-    orig_h = h;
-    resize_h(max_h);
+void CharSquish(Character * c)
+{
+    if ( c->squished ) return;
+    
+    c->sprite.image = c->_fdown;
+    SpriteInit( &(c->sprite), c->_fdown );
+    
+    SpriteResizeH( &(c->sprite), (uint16_t) (1.0f * c->sprite.h * c->max_h/c->orig_h) );
+    SpriteShift( &(c->sprite), 0, c->max_h);
+    SpriteShift( &(c->sprite), 0, -(c->sprite.nh) );
+    c->squished = true;
 }
 
-Character::~Character() {/* do nothing*/}
+void CharUnsquish(Character * c)
+{
+    if( !c->squished ) return;
+    uint16_t oldH = c->sprite.nh;
+    
+    c->sprite.image = c->_fup;
+    SpriteInit( &(c->sprite), c->_fup );
 
-void Character::squish () {
-    if ( squished ) return;
-    assign(_fdown);
-    resize_h ( (int) (1.0f * h * max_h/orig_h) );
-    shift(0,max_h);
-    shift(0,-nh);
-    squished = true;
+    SpriteResizeH( &(c->sprite), c->max_h);
+    SpriteShift( &(c->sprite), 0, -(c->max_h) );
+    SpriteShift( &(c->sprite), 0, oldH);
+    c->squished = false;
 }
-void Character::unsquish () {
-    if( !squished ) return;
-    unsigned int oldH = nh;
-    assign(_fup);
-    resize_h(max_h);
-    shift(0,-max_h);
-    shift(0,oldH);
-    squished = false;
-}
-
-bool Character::get_squish(){ return squished; }

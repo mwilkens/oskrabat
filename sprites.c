@@ -34,31 +34,31 @@ void SpriteResizeH(Sprite * sprite, uint16_t h)
 {
     float r = 1.0f * sprite->w / sprite->h;
     sprite->nw = 1.0f*h*r;
-    sprite->nh = height;
+    sprite->nh = h;
 }
 
 void SpriteRandomShift(Sprite * sprite, uint8_t amt, int8_t lmt)
 {
-        unsigned int rnd = rand() % 100;
+    uint16_t rnd = GetRandomValue(0,100);
 
-        switch ( rnd % 8 ){
-            case 1:
-                if ( sprite->sx < lmt)
-                    sprite->sx += amt;
-                break;
-            case 2:
-                if ( sprite->sy < lmt)
-                    sprite->sy += amt;
-                break;
-            case 3:
-                if ( sprite->sx > -lmt)
-                    sprite->sx -= amt;
-                break;
-            case 4:
-                if ( sprite->sy > -lmt)
-                    sprite->sy -= amt;
-                break;
-            default:
-                break;
-        }
+    switch ( rnd % 8 ){
+        case 1:
+            if ( sprite->sx < lmt)
+                sprite->sx += amt;
+            break;
+        case 2:
+            if ( sprite->sy < lmt)
+                sprite->sy += amt;
+            break;
+        case 3:
+            if ( sprite->sx > -lmt)
+                sprite->sx -= amt;
+            break;
+        case 4:
+            if ( sprite->sy > -lmt)
+                sprite->sy -= amt;
+            break;
+        default:
+            break;
+    }
 }

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <raylib.h>
 
 #include "sprites.h"
@@ -11,7 +12,7 @@
 int main(int argc, char **argv) {
 
     // The dimentions of the screen
-    const unsigned int Wi = 800, Hi = 800;
+    const uint16_t Wi = 800, Hi = 800;
    
     // Main program window
     InitWindow(Wi, Hi, "Oskrabat");
@@ -46,15 +47,24 @@ int main(int argc, char **argv) {
     Texture2D t_p2_down = LoadTexture("res/p2down");
     Character p2;
     CharInit(&p2, &t_p2_up, &t_p2_down, 200);
-    
-    Meat meat1("res/meat.png"); meat1.resize_h(50); 
-    Meat meat2("res/meat.png"); meat2.resize_h(50); 
-    Meat meat3("res/meat.png"); meat3.resize_h(50); 
 
-    Bonewand bw1("res/bonewand.png",80,1);
-    Bonewand bw2("res/bonewand2.png",80,0); 
+    Texture2D t_meat1 = LoadTexture("res/meat.png");
+    Meat meat1;
+    MeatInit(&meat1, &t_meat1, 50);
+    Meat meat2;
+    MeatInit(&meat2, &t_meat1, 50);
+    Meat meat3;
+    MeatInit(&meat3, &t_meat1, 50);    
+
+    Texture2D t_bw1 = LoadTexture("res/bonewand.png");
+    Bonewand bw1;
+    BoneInit(&bw1, &t_bw1, 80, true);
     
-    unsigned int winner = WINNER_NONE;
+    Texture2D t_bw2 = LoadTexture("res/bonewand.png");
+    Bonewand bw2;
+    BoneInit(&bw2, &t_bw2, 80, false);
+    
+    uint8_t winner = WINNER_NONE;
 
     // Configuring events
 
@@ -63,36 +73,58 @@ int main(int argc, char **argv) {
     bool playing = true;
     bool redraw = true;
 
-    // play our audio file
-    al_play_sample(music, 0.5, 0.0,1.0,ALLEGRO_PLAYMODE_LOOP,NULL);
-    Sound music = LoadSound("res/music.ogg");
+    // Wait for Audio to initialize
+    while(!IsAudioDeviceReady()){}
+
+    Music music = LoadMusicStream("res/music.ogg");
     Sound bone = LoadSound("res/hit.ogg");
     Sound win_sound = LoadSound("res/final.ogg");
+
+    PlayMusicStream(music);
 
     // ---------------------
     // The main loop
     // ---------------------
-    al_start_timer(timer);
     while (!WindowShouldClose()) {
 
         while(running){
 
             // Set Defaults
             printf("Setting Defaults...\n");
-            background.set_xy(0,10); background2.set_xy(195,40);
-            border.set_xy(0,0); border.shift(-5,-5);
-            title_text.set_xy(170,240);
-            p1.unsquish(); p1.set_xy(210,550);
-            p2.unsquish(); p2.set_xy(445,550);
-            meat1.set_xy(360,100); meat1.resetStatus();
-            meat2.set_xy(360,275); meat2.resetStatus();
-            meat3.set_xy(360,450); meat3.resetStatus();
-            bw1.set_xy(60,200); bw1.reset();
-            bw2.set_xy(580,200); bw2.reset();
-            bw1.set_speed(18);
-            bw2.set_speed(18);
+            
+            SpriteSetXY(&background,0,10);
+            SpriteSetXY(&background2,195,40);
+            
+            SpriteSetXY(&border,0,0);
+            SpriteShift(&border,-5,-5);
+            
+            SpriteSetXY(&title_text,170,240);
+            
+            CharUnsquish(&p1);
+            SpriteSetXY(&(p1.sprite),210,550);
+            CharUnsquish(&p2);
+            SpriteSetXY(&(p2.sprite),445,550);
+            
+            SpriteSetXY(&(meat1.sprite),360,100);
+            MeatResetStatus(&meat1);
+            SpriteSetXY(&(meat2.sprite),360,275); 
+            MeatResetStatus(&meat2);
+            SpriteSetXY(&(meat3.sprite),360,450);
+            MeatResetStatus(&meat3);
+            
+            SpriteSetXY(&(bw1.sprite),60,200);
+            BoneReset(&bw1);
+            SpriteSetXY(&(bw2.sprite),580,200); 
+            BoneReset(&bw2);
+            BoneSetSpeed(&bw1,18);
+            BoneSetSpeed(&bw2,18);
+            
             title = true; running = true; playing = true; redraw = true;
             winner = WINNER_NONE;
+
+            BeginDrawing();
+            EndDrawing();
+            /*
 
             while (playing){
 
@@ -204,6 +236,7 @@ int main(int argc, char **argv) {
                     redraw = false;
                 }
             } // While Playing
+            */
         } // While Running
         // to restart
     } // While !WindowShouldClose
