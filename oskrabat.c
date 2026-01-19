@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
     // Main program window
     InitWindow(Wi, Hi, "Oskrabat");
     InitAudioDevice();
-    SetTargetFPS(60);
+    SetTargetFPS(30);
 
     // -----------------------------
     // Loading and defining sprites
@@ -64,13 +64,13 @@ int main(int argc, char **argv) {
     Bonewand bw2;
     BoneInit(&bw2, &t_bw2, 80, false);
     
-    uint8_t winner = WINNER_NONE;
+    uint16_t winner = WINNER_NONE;
 
     // Configuring events
 
     bool title = true;
     bool running = true;
-    bool playing = true;
+    bool playing = false;
     bool redraw = true;
 
     // Wait for Audio to initialize
@@ -136,32 +136,52 @@ int main(int argc, char **argv) {
                 if( IsKeyPressed(KEY_SPACE) )
                 {
                     title = false;
+                    printf("[INFO] Starting the game!\n");
                 }
+                redraw = true;
             }
             else
             {
-                /*
-                   if(key[ALLEGRO_KEY_X] & KEY_RELEASED == KEY_RELEASED) {
-                   bw1.stab(&meat1,&meat2,&meat3);
-                   if (currSample) {al_stop_sample(currSample); printf("is this happening?\n");} 
-                   else al_play_sample(bone, 2.0, -0.8,1.0,ALLEGRO_PLAYMODE_ONCE, currSample);
-                   }
+                if( IsKeyPressed(KEY_X) )
+                {
+                    BoneStab(&bw1,&meat1,&meat2,&meat3);
+                    PlaySound(bone);
+                }
 
-                   if(key[ALLEGRO_KEY_M] & KEY_RELEASED == KEY_RELEASED) {
-                   bw2.stab(&meat1,&meat2,&meat3);
-                   if (currSample) al_stop_sample(currSample);
-                   else al_play_sample(bone, 2.0, 0.8,1.0,ALLEGRO_PLAYMODE_ONCE, currSample);
-                   }
+                if( IsKeyPressed(KEY_M) )
+                {
+                    BoneStab(&bw2,&meat1,&meat2,&meat3);
+                    PlaySound(bone);
+                }
 
-                   if(key[ALLEGRO_KEY_LEFT]) p1.get_squish() ? p1.unsquish() : p1.squish();
-                   if(key[ALLEGRO_KEY_RIGHT]) p2.get_squish() ? p2.unsquish() : p2.squish();
+                if( IsKeyPressed(KEY_LEFT) )
+                {
+                    p1.squished ? CharUnsquish(&p1) : CharSquish(&p1);
+                }
 
-                   if((key[ALLEGRO_KEY_SPACE] & KEY_RELEASED == KEY_RELEASED) && winner != WINNER_NONE) { playing = false; } 
-                   */
+                if( IsKeyPressed(KEY_RIGHT) )
+                {
+                    p2.squished ? CharUnsquish(&p2) : CharSquish(&p2);
+                }
+
+                if( IsKeyPressed(KEY_SPACE) && winner != WINNER_NONE )
+                {
+                    playing = false;
+                }
+
+                if (GetRandomValue(0,150) == 0) {
+                    uint16_t spd = 15 + 2*(GetRandomValue(0,10));
+                    BoneSetSpeed(&bw1,spd);
+                    BoneSetSpeed(&bw2,spd);
+                }
+
+                redraw = true;
             }
 
-
+            if(redraw)
+            {
                 // main event loop
+                BeginDrawing();
                 ClearBackground(BLACK);
 
                 // shift the eye guy around randomly
@@ -173,141 +193,65 @@ int main(int argc, char **argv) {
                 // Do background projections
                 SpriteProj(&background2);
                 SpriteProj(&background);
-                SpriteProj(&border);
                 SpriteProj(&(p1.sprite));
                 SpriteProj(&(p2.sprite));
 
+                if(!title)
+                {
+                    // this is literally all the game logic lmao
+                    SpriteRandomShift(&(meat1.sprite),1,1);
+                    SpriteRandomShift(&(meat2.sprite),1,1);
+                    SpriteRandomShift(&(meat3.sprite),1,1);
 
+                    // update the movement of the bone wands
+                    if(meat1.falling)
+                    {
+                        MeatFall(&meat1,&winner);
+                    }
+                    else if(meat2.falling)
+                    {
+                        MeatFall(&meat2,&winner);
+                    }
+                    else if(meat3.falling)
+                    {
+                        MeatFall(&meat3,&winner);
+                    }
+                    else
+                    {
+                        BoneUpdate(&bw1);
+                        BoneUpdate(&bw2);
+                    }
 
-            /*
-               al_wait_for_event(queue,&event);
+                    switch(winner)
+                    {
+                        case WINNER_P1:
+                            CharSquish(&p2);
+                            PlaySound(win_sound);
+                            break;
+                        case WINNER_P2:
+                            CharSquish(&p1);
+                            PlaySound(win_sound);
+                            break;
+                        case WINNER_NONE:
+                            break;
+                    }
 
-               switch(event.type){
-               case ALLEGRO_EVENT_TIMER:
+                    SpriteProj(&(bw1.sprite));
+                    SpriteProj(&(bw2.sprite));
+                    SpriteProj(&(meat1.sprite));
+                    SpriteProj(&(meat2.sprite));
+                    SpriteProj(&(meat3.sprite));
 
-            // Key events
-            if(key[ALLEGRO_KEY_ESCAPE] || key[ALLEGRO_KEY_Q]){
-            running = false; // quit the game
-            playing = false;
-            }
-
-            if (title){
-            if(key[ALLEGRO_KEY_SPACE] & KEY_RELEASED == KEY_RELEASED) title = false;
-            } else {
-            if(key[ALLEGRO_KEY_X] & KEY_RELEASED == KEY_RELEASED) {
-            bw1.stab(&meat1,&meat2,&meat3);
-            if (currSample) {al_stop_sample(currSample); printf("is this happening?\n");} 
-            else al_play_sample(bone, 2.0, -0.8,1.0,ALLEGRO_PLAYMODE_ONCE, currSample);
-            }
-
-            if(key[ALLEGRO_KEY_M] & KEY_RELEASED == KEY_RELEASED) {
-            bw2.stab(&meat1,&meat2,&meat3);
-            if (currSample) al_stop_sample(currSample);
-            else al_play_sample(bone, 2.0, 0.8,1.0,ALLEGRO_PLAYMODE_ONCE, currSample);
-            }
-
-            if(key[ALLEGRO_KEY_LEFT]) p1.get_squish() ? p1.unsquish() : p1.squish();
-            if(key[ALLEGRO_KEY_RIGHT]) p2.get_squish() ? p2.unsquish() : p2.squish();
-
-            if((key[ALLEGRO_KEY_SPACE] & KEY_RELEASED == KEY_RELEASED) && winner != WINNER_NONE) { playing = false; } 
-            }
-
-            if (rand() % 150 == 0) {
-            unsigned int spd = 15 + 2*(rand()%10);
-            bw1.set_speed(spd);
-            bw2.set_speed(spd);
-            }
-
-            for( int i = 0; i < ALLEGRO_KEY_MAX; i++) key[i] &= 0;
-
-            redraw = true;
-            break;
-
-            // dont worry about what this means lol
-            case ALLEGRO_EVENT_KEY_DOWN:
-            key[event.keyboard.keycode] = KEY_SEEN;
-            break;
-
-            case ALLEGRO_EVENT_KEY_UP:
-            key[event.keyboard.keycode] |= KEY_RELEASED;
-            break;
-
-            case ALLEGRO_EVENT_DISPLAY_CLOSE:
-            running = false;
-            break;
-            }
-
-            if (redraw && al_is_event_queue_empty(queue)){
-            // main event loop
-            al_clear_to_color(al_map_rgb(0,0,0));
-
-            // shift the eye guy around randomly
-            background2.randomshift(1,20);
-            border.randomshift(1,2);
-            p1.randomshift(1,1); p2.randomshift(1,1);
-
-            // Do background projections
-            background2.proj();
-            background.proj();
-            border.proj();
-            p1.proj(); p2.proj();
-
-            if(!title){
-
-                // this is literally all the game logic lmao
-
-                meat1.randomshift(1,1); meat2.randomshift(1,1); meat3.randomshift(1,1);
-
-                // update the movement of the bone wands
-                if      (meat1.get_falling()) meat1.fall(&winner);
-                else if (meat2.get_falling()) meat2.fall(&winner);
-                else if (meat3.get_falling()) meat3.fall(&winner);
-                else {bw1.update(); bw2.update();}
-
-                switch(winner){
-                    case WINNER_P1:
-                        p2.squish();
-                        al_play_sample(win_sound, 1.0, 0.0,0.5,ALLEGRO_PLAYMODE_ONCE, NULL);
-                        break;
-                    case WINNER_P2:
-                        p1.squish();
-                        al_play_sample(win_sound, 1.0, 0.0,0.5,ALLEGRO_PLAYMODE_ONCE, NULL);
-                        break;
-                    case WINNER_NONE:
-                        break;
+                } else {
+                    SpriteRandomShift(&title_text,1,3);
+                    SpriteProj(&title_text);
                 }
-
-                bw1.proj(); bw2.proj();
-                meat1.proj(); meat2.proj(); meat3.proj();
-            } else {
-                title_text.randomshift(1,3);
-                title_text.proj();
-            }
-
-            al_flip_display();
-            redraw = false;
-        }
-        */
-        } // While Playing
-        BeginDrawing();
-        // main event loop
-        ClearBackground(BLACK);
-
-        // shift the eye guy around randomly
-        SpriteRandomShift(&background2,1,20);
-        SpriteRandomShift(&border,1,2);
-        SpriteRandomShift(&(p1.sprite),1,1);
-        SpriteRandomShift(&(p2.sprite),1,1);
-
-        // Do background projections
-        SpriteProj(&background2);
-        SpriteProj(&background);
-        SpriteProj(&border);
-        SpriteProj(&(p1.sprite));
-        SpriteProj(&(p2.sprite));
-
-        EndDrawing();
-          // to restart
+                
+                SpriteProj(&border);
+                EndDrawing();
+                redraw = false;
+            } // If Redraw
+        } // If Playing
     } // While !WindowShouldClose
     
     UnloadTexture(t_background);
