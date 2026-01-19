@@ -1,110 +1,80 @@
 #define _SPRITES_H
 
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_image.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <raylib.h>
+
+typedef unsigned char uint8_t;
+typedef unsigned int uint16_t;
+typedef signed char int8_t;
+typedef signed int int16_t;
 
 #define WINNER_NONE 0 
 #define WINNER_P1   1
 #define WINNER_P2   2
 
-// Class Sprite
-class Sprite{
-    public:
-        Sprite() : image(NULL) { }
-        ~Sprite() { al_destroy_bitmap(image); }
-
-        // overload for loading up an image in the constructor
-        Sprite(const char * const filename);
-
-        // just a wrapper for the assign CImg function
-        void assign(const char * const filename);
-
-        // Function for Projecting
-        void proj();
-
-        // setting function for x,y
-        void set_xy(signed int x, signed int y);
-
-        // Shift the sprite over a bit
-        void shift(signed int x, signed int y);
-
-        void resize_h(unsigned int height);
-
-        signed int get_x();
-        signed int get_y();
-
-        void randomshift(unsigned int amt, signed int lmt);
-
-    protected:
-        ALLEGRO_BITMAP *image;
-        signed int _x,_y, sx,sy;
-        signed int w, h, nw, nh;
+struct Sprite {
+    int16_t _x;
+    int16_t _y;
+    int16_t sx;
+    int16_t sy;
+    int16_t w;
+    int16_t h;
+    int16_t nw;
+    int16_t nh;
+    Texture2D *image;
 };
+typedef struct Sprite Sprite;
 
-class Character : public Sprite {
-    public:
-        Character(const char * const fup, const char * const fdown);
 
-        Character(const char * const fup, const char * const fdown, unsigned int height);
+void SpriteInit(Sprite * sprite, Texture2D * t);
+void SpriteProj(Sprite * sprite);
+void SpriteSetXY(Sprite * sprite, int16_t x, int16_t y);
+void SpriteShift(Sprite * sprite, int16_t x, int16_t y);
+void SpriteResizeH(Sprite * sprite, uint16_t h);
+void SpriteRandomShift(Sprite * sprite, uint8_t amt, int8_t lmt);
 
-        ~Character();
-
-        void squish ();
-        void unsquish ();
-
-        unsigned int check_winner();
-
-        bool get_squish();
-
-    private:
-        char _fup[20], _fdown[20];
-        unsigned int max_h, orig_h;
-        bool squished;
+struct Character {
+    Texture2D * _fup;
+    Texture2D * _fdown;
+    uint16_t max_h;
+    uint16_t orig_h;
+    bool squished;
+    Sprite sprite;
 };
+typedef struct Character Character;
 
-class Meat : public Sprite {
-    public:
-        Meat() {}
-        ~Meat() {}
+void CharInit(Character * c, Texture2D * fup, Texture2D * fdown, uint16_t h);
+void CharSquish(Character * c);
+void CharUnsquish(Character * c);
 
-        Meat(const char * const filename) : Sprite(filename), status(0), falling(false) {}
-
-        bool inRange(unsigned int y);
-
-        void hit(signed short s);
-
-        bool get_falling() {return falling;}
-
-        void resetStatus(){status = 0; falling = false;}
-
-        void fall(unsigned int * winner);
-
-    protected:
-        signed short int status;
-        bool falling;
+struct Meat {
+    int8_t status;
+    bool falling;
+    Sprite sprite;
 };
+typedef struct Meat Meat;
 
-class Bonewand : public Sprite {
-    public:
-        Bonewand();
-        ~Bonewand();
-        
-        Bonewand(const char * const filename, unsigned int height, bool direction);
+void MeatInit(Meat * m, Texture2D * t, uint16_t height);
+bool MeatInRange(Meat * m, uint16_t y);
+void MeatHit(Meat * m, int8_t s);
+void MeatResetStatus(Meat * m);
+void MeatFall(Meat * m, uint16_t * winner);
 
-        void set_speed(unsigned int spd);
-
-        void stab(Meat * m1, Meat * m2, Meat * m3);
-
-        unsigned int getT();
-
-        void reset() {slide = false; idir = false;}
-
-        void update();
-
-        void hitTarget(short dir);
-
-    protected:
-        unsigned int speed, t;
-        bool dir, idir, slide;
-        Meat * target;
+struct Bonewand {
+    uint16_t speed;
+    uint16_t t;
+    bool dir;
+    bool idir;
+    bool slide;
+    Sprite sprite;
+    Meat * target;
 };
+typedef struct Bonewand Bonewand;
+
+void BoneInit(Bonewand * b, Texture2D * t, uint16_t height, bool direction);
+void BoneSetSpeed(Bonewand * b, uint16_t spd);
+void BoneStab(Bonewand * b, Meat * m1, Meat * m2, Meat * m3);
+void BoneReset(Bonewand * b);
+void BoneUpdate(Bonewand * b);
+void BoneHitTarget(Bonewand * b, int8_t dir);
