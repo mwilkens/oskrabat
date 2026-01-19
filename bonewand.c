@@ -39,7 +39,8 @@ void BoneStab(Bonewand * b, Meat * m1, Meat * m2, Meat * m3)
 
 void BoneUpdate(Bonewand * b)
 {
-    if (b->slide){ // this is for if we're selected to slide
+    if (b->slide)
+    { // this is for if we're selected to slide
         if ( b->sprite._x < 360)
         {
             if ( b->sprite._x > 229)
@@ -56,7 +57,8 @@ void BoneUpdate(Bonewand * b)
             }
             SpriteShift( &(b->sprite), pow(-1,(int)b->idir)*b->speed,0);
 
-        } else
+        }
+        else
         {
             if (b->sprite._x < 391)
             {
@@ -78,9 +80,13 @@ void BoneUpdate(Bonewand * b)
     }
     else
     { // this is for normal up/down movement
-        if ( b->sprite._y > 500 || b->sprite._y < 30)
+        if ( b->sprite._y > 500 )
         {
-            b->dir = !b->dir;
+            b->dir = 0;
+        }
+        if ( b->sprite._y < 30 )
+        {
+            b->dir = 1;
         }
         
         SpriteShift( &(b->sprite), 0, pow(-1, (int)!(b->dir) ) * b->speed); 

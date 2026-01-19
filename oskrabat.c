@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     Bonewand bw1;
     BoneInit(&bw1, &t_bw1, 80, true);
     
-    Texture2D t_bw2 = LoadTexture("res/bonewand.png");
+    Texture2D t_bw2 = LoadTexture("res/bonewand2.png");
     Bonewand bw2;
     BoneInit(&bw2, &t_bw2, 80, false);
     
@@ -81,12 +81,14 @@ int main(int argc, char **argv) {
     Sound win_sound = LoadSound("res/final.ogg");
 
     PlayMusicStream(music);
+    SetMusicVolume(music, 0.1f);
 
     // ---------------------
     // The main loop
     // ---------------------
     while (!WindowShouldClose()) 
     {
+        UpdateMusicStream(music);
         if(!playing)
         {
             // Set Defaults
@@ -127,6 +129,8 @@ int main(int argc, char **argv) {
             // quit the game
             if( IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_Q) )
             {
+                StopMusicStream(music);
+                PlayMusicStream(music);
                 playing = false;
             }
 

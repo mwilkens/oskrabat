@@ -1,9 +1,12 @@
 #include "sprites.h"
 #include <raylib.h>
+#include <stdio.h>
 
 void SpriteInit(Sprite * sprite, Texture2D * t)
 {
     sprite->image = t; 
+    sprite->sx = 0;
+    sprite->sy = 0;
     sprite->w = t->width;
     sprite->h = t->height;
     sprite->nw = t->width;
@@ -12,8 +15,7 @@ void SpriteInit(Sprite * sprite, Texture2D * t)
 
 void SpriteProj(Sprite * sprite)
 {
-    //al_draw_scaled_bitmap(image, 0, 0, al_get_bitmap_width(image) , al_get_bitmap_height(image) ,
-    //                             _x+sx, _y+sy, nw, nh, 0);
+    //printf("[DEBUG] Printing sprite #%d (width %d, height %d) (%d %d %d %d)\n", sprite->image->id, sprite->w, sprite->h, sprite->_x, sprite->sx, sprite->_y, sprite->sy);
     float scale = (float) sprite->nw / sprite->w;
     Vector2 pos = {
         sprite->_x+sprite->sx,
