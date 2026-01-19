@@ -79,6 +79,7 @@ int main(int argc, char **argv) {
     Music music = LoadMusicStream("res/music.ogg");
     Sound bone = LoadSound("res/hit.ogg");
     Sound win_sound = LoadSound("res/final.ogg");
+    Sound dead_sound = LoadSound("res/dead.ogg");
 
     PlayMusicStream(music);
     SetMusicVolume(music, 0.1f);
@@ -141,6 +142,7 @@ int main(int argc, char **argv) {
                 {
                     title = false;
                     printf("[INFO] Starting the game!\n");
+		    PlaySound(win_sound);
                 }
                 redraw = true;
             }
@@ -230,11 +232,11 @@ int main(int argc, char **argv) {
                     {
                         case WINNER_P1:
                             CharSquish(&p2);
-                            PlaySound(win_sound);
+                            PlaySound(dead_sound);
                             break;
                         case WINNER_P2:
                             CharSquish(&p1);
-                            PlaySound(win_sound);
+                            PlaySound(dead_sound);
                             break;
                         case WINNER_NONE:
                             break;
@@ -272,6 +274,7 @@ int main(int argc, char **argv) {
     UnloadMusicStream(music);
     UnloadSound(bone);
     UnloadSound(win_sound);
+    UnloadSound(dead_sound);
 
     CloseAudioDevice();
     CloseWindow();
