@@ -2,12 +2,8 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <raylib.h>
-
-typedef unsigned char uint8_t;
-typedef unsigned int uint16_t;
-typedef signed char int8_t;
-typedef signed int int16_t;
 
 #define WINNER_NONE 0 
 #define WINNER_P1   1
