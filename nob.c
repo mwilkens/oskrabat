@@ -19,6 +19,22 @@
 
 #include "nob.h"
 
+bool nob_push_cmds(Nob_Cmd * cmd, const char ** arr, size_t arr_size, char * fmt)
+{
+    for( int i = 0; i < arr_size; i++)    
+    {    
+        char * buff = NULL;    
+        size_t buff_s = snprintf(buff, 0, fmt, arr[i]) + 1;
+        assert(buff_s > 0);    
+    
+        buff = (char*)malloc( buff_s );    
+        if( snprintf( buff, buff_s, fmt, arr[i] ) <= 0) return false;
+    
+        nob_cmd_append(cmd, buff);
+    }
+    return true;
+}
+
 int main(int argc, char **argv)
 {
     NOB_GO_REBUILD_URSELF(argc, argv);
@@ -56,47 +72,14 @@ int main(int argc, char **argv)
         nob_cmd_append(&cmd, inputs[i]);  
     }
 
-    for( int i = 0; i < ARRAY_LEN(include); i++)    
-    {    
-        char * buff = NULL;    
-        const char * fmt = "-I%s";
-        size_t bufbuff = snprintf(buff, 0, fmt, include[i]) + 1;
-        assert(bufbuff > 0);    
-    
-        buff = (char*)malloc( bufbuff );    
-        if( snprintf( buff, bufbuff, fmt, include[i] ) <= 0) return 1;
-    
-        nob_cmd_append(&cmd, buff);    
-    }    
-    
-    for( int i = 0; i < ARRAY_LEN(lib); i++)    
-    {    
-        char * buff = NULL;
-        const char * fmt = "-L%s";
-        size_t buff_s = snprintf(buff, 0, fmt, lib[i]) + 1;
-        assert(buff_s > 0);    
-    
-        buff = (char*)malloc( buff_s );    
-        if( snprintf( buff, buff_s, fmt, lib[i] ) <= 0) return 1;
-    
-        nob_cmd_append(&cmd, buff);    
-    }    
-    
-    for( int i = 0; i < ARRAY_LEN(libraries); i++)    
-    {    
-        char * buff = NULL;    
-        const char * fmt = "-l%s";
-        size_t buff_s = snprintf(buff, 0, fmt, libraries[i]) + 1;
-        assert(buff_s > 0);   
-   
-        buff = (char*)malloc( buff_s );   
-        if( snprintf( buff, buff_s, fmt, libraries[i] ) <= 0) return 1;
-  
-        nob_cmd_append(&cmd, buff);  
-    }
+    nob_push_cmds(&cmd, include, ARRAY_LEN(include), "-I%s");
+    nob_push_cmds(&cmd, lib, ARRAY_LEN(lib), "-L%s");
+    nob_push_cmds(&cmd, libraries, ARRAY_LEN(libraries), "-l%s");
  
     nob_cc_flags(&cmd);
     //nob_cmd_append(&cmd, "-static");
+    //nob_cmd_append(&cmd, "-O3");
+    //nob_cmd_append(&cmd, "-g");
 
     if(!nob_cmd_run(&cmd)) return 1;
     return 0;
