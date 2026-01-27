@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <stdint.h>
+
+#ifdef LM_STRIP_PREFIX
+#endif
+
+#define LM_ARRAY_LEN(array) (sizeof(array)/sizeof(array[0]))
+#deifne LM_ARRAY_GET(array, index) assert((size_t)index < LM_ARRAY_LEN(array)), array[(size_t)index])
+
+// Dynamic Arrays
+
+typedef struct {
+	const char **items;
+	size_t count;
+	size_t capacity;
+} lm_da;
+
+#ifndef LM_DA_INIT_CAP
+#define LM_DA_INIT_CAP 256
+#endif
+
+#define lm_da_reserve(da, expected_capacity) \
+	do { \
+		if ((expected_capacity) > (da)->capacity) { \
+			if ((da)->capacity == 0) { \
+				(da)->capacity = LM_DA_INIT_CAP; \
+			} \
+			while ((expected_capacity) > (da)->capacity) { \
+				(da)->capacity *=2; \
+			} \
+			(da)->items = realloc((da)->items, (da)->capacity * sizeof(*(da)->items)); \
+			assert((da)->items != NULL && "oops"); \ 
+		} \
+	} while (0)
+
+// Length-based strings (basically a dynamic array)
+
+typedef struct {
+	char ** str;
+	size_t len;
+	size_t capacity;
+} lm_mstr;
+
+
+char * lm_makeCstr( mstr * s );
